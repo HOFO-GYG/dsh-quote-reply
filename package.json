@@ -1,0 +1,42 @@
+{
+  "name": "dsh-quote-reply",
+  "version": "0.2.0",
+  "description": "DSH web plugin: quote any selected fragment of a conversation into the composer as a Markdown blockquote — smart floating button beside the mouse that dodges other overlays.",
+  "keywords": [
+    "dsh",
+    "deepseek-harness",
+    "plugin",
+    "quote",
+    "reply",
+    "web"
+  ],
+  "type": "module",
+  "main": "lib/index.js",
+  "exports": {
+    ".": {
+      "default": "./lib/index.js"
+    },
+    "./client": {
+      "default": "./lib/client.js"
+    },
+    "./package.json": "./package.json"
+  },
+  "dsh": {
+    "client": {
+      "platform": "web",
+      "inject": [
+        "@deepseek-ai/dsh-client-runtime",
+        "@deepseek-ai/dsh-client-locale",
+        "@deepseek-ai/dsh-client-ui-conversation"
+      ]
+    }
+  },
+  "files": [
+    "lib/index.js",
+    "lib/client.js"
+  ],
+  "scripts": {
+    "test": "node test/client.smoke.cjs"
+  },
+  "license": "MIT"
+}
