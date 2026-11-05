@@ -76,10 +76,23 @@ if (!docListeners["mouseup"] || !docListeners["selectionchange"] || !docListener
 (async () => {
   // ---- component mount: registers toolbar + applicator ----
   const calls = [];
-  const fakeSession = { chat: { nodes: { values: () => [{ data: { finalNode: { messageId: "m1", blocks: [{ kind: "text", text: "第2步：提审 4 个 bot" }] } } }] } } };
+  const fakeChat = {
+    nodes: {
+      values: () => [{
+        data: {
+          finalNode: {
+            messageId: "m1",
+            blocks: [{ kind: "text", text: "第2步：提审 4 个 bot" }]
+          }
+        }
+      }]
+    }
+  };
+  const fakeSession = { chat: fakeChat };
   const props = {
     messageId: "m1",
     t: (k) => k,
+    useChat: (sel) => sel(fakeChat),
     useSession: (sel) => sel(fakeSession),
     useInput: (sel) => sel({ draft: "" }),
     inputActions: { setDraft: (t) => calls.push(["setDraft", t]) }
@@ -196,6 +209,15 @@ if (!docListeners["mouseup"] || !docListeners["selectionchange"] || !docListener
   out3[1].onClick();
   const setDraft3 = calls.find((c) => c[0] === "setDraft" && c[1] === "> 第2步：提审 4 个 bot");
   if (!setDraft3) throw new Error("whole-message fallback wrong: " + JSON.stringify(calls));
+
+  // ---- legacy hosts: no useChat prop, chat snapshot lives on useSession ----
+  const legacySession = { chat: { nodes: { values: () => [{ data: { finalNode: { messageId: "m1", blocks: [{ kind: "text", text: "旧版快照正文" }] } } }] } } };
+  const out4 = registered.comp({ ...props, useChat: undefined, useSession: (sel) => sel(legacySession), useInput: (sel) => sel({ draft: "" }) });
+  win.getSelection = () => ({ isCollapsed: false, rangeCount: 1, toString: () => "   ", removeAllRanges: () => {} });
+  out4[1].onMouseDown({ preventDefault: () => {} });
+  out4[1].onClick();
+  const setDraft4 = calls.find((c) => c[0] === "setDraft" && c[1] === "> 旧版快照正文");
+  if (!setDraft4) throw new Error("legacy session-snapshot fallback wrong: " + JSON.stringify(calls));
 
   console.log("ALL SMOKE TESTS PASSED");
 })().catch((e) => { console.error(e); process.exit(1); });
